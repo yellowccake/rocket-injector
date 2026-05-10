@@ -88,7 +88,7 @@ print(f"ROF = {ROF:.2f}")
 print(f"c ideal = {c_ideal:.2f} m/s")
 print(f"c* ideal = {cstar_ideal:.2f} m/s")
 print(f"Fuel temp = {T_fuel:.1f} K")
-print(f"Ox temp = {T_ox:.1f} K")
+print(f"Ox temp = {T_Lox:.1f} K")
 
 print("\n===== CANTERA CHECK =====")
 print(f"Cantera CH4 moles = {CH4_moles:.4f}")
