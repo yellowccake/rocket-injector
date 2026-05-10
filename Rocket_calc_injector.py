@@ -16,10 +16,10 @@ cstar_ideal = 1845.2       # ideal c* from CEA [m/s]
 eta_isp = 0.88             # impulse efficiency
 eta_cf = 0.96              # nozzle / CF efficiency
 
-contraction_ratio = 2.5    # A_face / A_throat
+contraction_ratio = 2.5    # A_face / A_throat (Source: Alex)
 
-T_fuel = 250               # CH4 inlet temperature [K]
-T_ox = 96                  # LOX inlet temperature [K]
+T_fuel = 250               # CH4 inlet temperature [K] (fuel=CH4)
+T_Lox = 96                  # LOX inlet temperature [K]
 
 
 # CANTERA CHECK
