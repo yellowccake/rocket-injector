@@ -20,8 +20,8 @@ Preliminary injector and gas generator chamber sizing calculations for a LOX/LCH
 - Injector type: Swirl injector
 - Chamber pressure: 80 bar
 - Thrust: 40 kN
-- Mixture ratio (O/F): 3.5
+- Mixture ratio (O/F): 3.25
 
 ## Authors
-Negar Javid
+
 
