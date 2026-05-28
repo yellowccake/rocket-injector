@@ -2,17 +2,13 @@ import math
 import cantera as ct
 
 # INPUT VALUES
-
+# This is a test (Diego)
 
 F = 40_000                 # thrust [N]
 g0 = 9.81                  # gravity [m/s^2]
 pc = 80e5                  # chamber pressure [Pa]
 
-<<<<<<< HEAD
-ROF = 3.25                  # oxidizer/fuel ratio
-=======
 ROF = 3.25                 # oxidizer/fuel ratio
->>>>>>> 3e66f897b9f17152dd6a716240d9fbbacc990cea
 
 c_ideal = 3100.3           # ideal exhaust velocity from CEA [m/s]
 cstar_ideal =1866       # ideal c* from CEA [m/s]
