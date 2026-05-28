@@ -2,7 +2,7 @@ import math
 import cantera as ct
 
 # INPUT VALUES
-# This is a test (Diego)
+# This is another test (Diego)
 
 F = 40_000                 # thrust [N]
 g0 = 9.81                  # gravity [m/s^2]
