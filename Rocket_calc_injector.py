@@ -3,10 +3,13 @@ import cantera as ct
 
 # INPUT VALUES
 # This is another test (Diego)
+# Test From JP
 
 F = 40_000                 # thrust [N]
 g0 = 9.81                  # gravity [m/s^2]
 pc = 80e5                  # chamber pressure [Pa]
+
+
 
 ROF = 3.25                 # oxidizer/fuel ratio
 
