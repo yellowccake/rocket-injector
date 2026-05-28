@@ -8,7 +8,7 @@ F = 40_000                 # thrust [N]
 g0 = 9.81                  # gravity [m/s^2]
 pc = 80e5                  # chamber pressure [Pa]
 
-ROF = 3.5                  # oxidizer/fuel ratio
+ROF = 3.25                  # oxidizer/fuel ratio
 
 c_ideal = 3084.1           # ideal exhaust velocity from CEA [m/s]
 cstar_ideal = 1845.2       # ideal c* from CEA [m/s]
