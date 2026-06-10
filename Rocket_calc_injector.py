@@ -4,6 +4,7 @@ import cantera as ct
 # INPUT VALUES
 # This is another test (Diego)
 # Test From JP
+#stop testing guys, it works lol
 
 F = 40_000                 # thrust [N]
 g0 = 9.81                  # gravity [m/s^2]
@@ -117,7 +118,7 @@ Rn_LOX = 0.475 * math.sqrt(
 
 Dn_LOX = 2 * Rn_LOX
 
-Rin = 3 * Rn_LOX
+Rin = 2 * Rn_LOX
 
 rin = math.sqrt(
     (Rin * Rn_LOX) /
@@ -126,7 +127,7 @@ rin = math.sqrt(
 
 din = 2 * rin
 
-l_in = 4 * rin
+l_in = 5 * rin
 
 l_n = 1 * Rn_LOX
 
@@ -134,7 +135,74 @@ R_s = Rin + rin
 
 D_s = 2 * R_s
 
-l_s = 3 * Rin
+l_s = 2 * Rin
+
+nu_LOX = 1.8160e-7
+xi_in = 0.77
+
+Re_in = 0.637 * mdot_LOX_el / (
+    math.sqrt(n_inlets) * rin * rho_LOX * nu_LOX
+)
+
+lambda_f = 0.3164 / (Re_in ** 0.25)
+
+A_eq = (Rin * Rn_LOX) / (
+    n_inlets * rin**2 + (lambda_f / 2) * Rin * (Rin - Rn_LOX)
+)
+
+xi_total = xi_in + lambda_f * (R_s / Rin)
+
+mu_i = mu_swirl / math.sqrt(
+    1 + xi_total * mu_swirl**2 * A_eq**2 / ((Rin / Rn_LOX)**2)
+)
+
+def calc_phi_from_A(A):
+    low = 1e-6
+    high = 1 - 1e-6
+
+    for _ in range(50):
+        mid = (low + high) / 2
+        value = A**2 * mid**3 - 2 * (1 - mid)**2
+
+        if value > 0:
+            high = mid
+        else:
+            low = mid
+
+    return (low + high) / 2
+
+tolerance = 1e-4
+max_iterations = 20
+
+
+A_current = A_eq
+mu_i_current = mu_i
+Rn_LOX_corrected = Rn_LOX
+
+for iteration in range(max_iterations):
+    Rn_LOX_corrected = 0.475 * math.sqrt(
+        mdot_LOX_el / (mu_i_current * math.sqrt(rho_LOX * delta_p_inj))
+    )
+
+    A_new = (Rin * Rn_LOX_corrected) / (n_inlets * rin**2)
+
+    phi_new = calc_phi_from_A(A_new)
+
+    mu_eq_new = phi_new * math.sqrt(phi_new / (2 - phi_new))
+
+    mu_i_new = mu_eq_new / math.sqrt(
+        1 + xi_total * mu_eq_new**2 * A_new**2 / ((Rin / Rn_LOX_corrected)**2)
+    )
+
+    if abs(A_new - A_current) < tolerance:
+        break
+
+    A_current = A_new
+    mu_i_current = mu_i_new
+
+A_corrected = A_current
+mu_i = mu_i_current
+Dn_LOX_corrected = 2 * Rn_LOX_corrected
 
 # OUTPUT
 
@@ -175,30 +243,31 @@ print(f"Face plate area = {A_face*1e6:.4f} mm^2")
 print(f"Face plate diameter = {d_face*1000:.4f} mm")
 print("\n===== PHASE 3 : LOX SWIRL INJECTOR SIZING =====")
 
+
 print(f"Injector elements = {N_elements}")
 print(f"Tangential inlets per element = {n_inlets}")
-
 print(f"LOX mass flow per element = {mdot_LOX_el:.4f} kg/s")
 
 print(f"Spray half-angle = {alpha_half_deg:.1f} deg")
 print(f"Spray full cone angle = {alpha_full_deg:.1f} deg")
 
-print(f"A_bazarov = {A_bazarov:.4f} [-]")
+print("\n--- Ideal Bazarov values ---")
+print(f"A_bazarov ideal = {A_bazarov:.4f} [-]")
 print(f"phi = {phi:.4f} [-]")
-print(f"mu_swirl = {mu_swirl:.4f} [-]")
+print(f"mu_swirl ideal = {mu_swirl:.4f} [-]")
+print(f"LOX nozzle radius ideal Rn = {Rn_LOX*1000:.3f} mm")
+print(f"LOX nozzle diameter ideal Dn = {Dn_LOX*1000:.3f} mm")
 
-print(f"LOX nozzle radius Rn = {Rn_LOX*1000:.3f} mm")
-print(f"LOX nozzle diameter Dn = {Dn_LOX*1000:.3f} mm")
+print("\n--- Real correction values ---")
+print(f"Re_in = {Re_in:.1f} [-]")
+print(f"lambda_f = {lambda_f:.5f} [-]")
+print(f"A_eq = {A_eq:.4f} [-]")
+print(f"xi_total = {xi_total:.4f} [-]")
+print(f"mu_i corrected = {mu_i:.4f} [-]")
+print(f"LOX nozzle radius corrected Rn = {Rn_LOX_corrected*1000:.3f} mm")
+print(f"LOX nozzle diameter corrected Dn = {Dn_LOX_corrected*1000:.3f} mm")
 
-print(f"Swirl arm Rin = {Rin*1000:.3f} mm")
-
-print(f"Tangential inlet radius rin = {rin*1000:.3f} mm")
-print(f"Tangential inlet diameter din = {din*1000:.3f} mm")
-
-print(f"Tangential passage length l_in = {l_in*1000:.3f} mm")
-
-print(f"Nozzle length l_n = {l_n*1000:.3f} mm")
-
-print(f"Swirl chamber radius R_s = {R_s*1000:.3f} mm")
-print(f"Swirl chamber diameter D_s = {D_s*1000:.3f} mm")
-print(f"Swirl chamber length l_s = {l_s*1000:.3f} mm")
+print(f"Iterations = {iteration + 1}")
+print(f"A corrected = {A_corrected:.4f} [-]")
+print(f"mu_i corrected = {mu_i:.4f} [-]")
+print(f"LOX nozzle diameter corrected Dn = {Dn_LOX_corrected*1000:.3f} mm")
