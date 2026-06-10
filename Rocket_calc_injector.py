@@ -14,7 +14,7 @@ pc = 80e5                  # chamber pressure [Pa]
 ROF = 3.25                 # oxidizer/fuel ratio
 
 c_ideal = 3100.3           # ideal exhaust velocity from CEA [m/s]
-cstar_ideal =1866       # ideal c* from CEA [m/s]
+cstar_ideal = 1866       # ideal c* from CEA [m/s]
 
 eta_isp = 0.88             # impulse efficiency
 eta_cf = 0.96              # nozzle / CF efficiency
@@ -24,7 +24,7 @@ contraction_ratio = 2.5    # A_face / A_throat (Source: Alex)
 T_fuel = 250               # CH4 inlet temperature [K] (fuel=CH4)
 T_Lox = 96                  # LOX inlet temperature [K]
 
-
+# PHASE 1: Engine performance & mass flow
 # CANTERA CHECK
 
 
@@ -62,6 +62,7 @@ mdot_total = F / (Isp_real * g0)
 mdot_fuel = mdot_total / (ROF + 1)
 mdot_oxidizer = ROF * mdot_fuel
 
+# PHASE 2: Throat & Injector face sizing
 # c* efficiency
 eta_cstar = eta_isp / eta_cf
 
@@ -80,6 +81,60 @@ A_face = contraction_ratio * A_throat
 # Face plate diameter
 d_face = 2 * math.sqrt(A_face / math.pi)
 
+
+
+N_elements = 19
+n_inlets = 4
+
+delta_p_inj = 16e5
+
+rho_LOX = 1157.9
+
+alpha_half_deg = 50
+alpha_full_deg = 2 * alpha_half_deg
+
+alpha_half_rad = math.radians(alpha_half_deg)
+
+phi = 2 / (math.tan(alpha_half_rad)**2 + 2)
+
+A_bazarov = math.sqrt(
+    2 * (1 - phi)**2 / phi**3
+)
+
+mu_swirl = phi * math.sqrt(
+    phi / (2 - phi)
+)
+
+mdot_LOX_el = mdot_oxidizer / N_elements
+
+Rn_LOX = 0.475 * math.sqrt(
+    mdot_LOX_el /
+    (
+        mu_swirl *
+        math.sqrt(rho_LOX * delta_p_inj)
+    )
+)
+
+Dn_LOX = 2 * Rn_LOX
+
+Rin = 3 * Rn_LOX
+
+rin = math.sqrt(
+    (Rin * Rn_LOX) /
+    (n_inlets * A_bazarov)
+)
+
+din = 2 * rin
+
+l_in = 4 * rin
+
+l_n = 1 * Rn_LOX
+
+R_s = Rin + rin
+
+D_s = 2 * R_s
+
+l_s = 3 * Rin
 
 # OUTPUT
 
@@ -118,3 +173,32 @@ print(f"Throat diameter = {d_throat*1000:.4f} mm")
 
 print(f"Face plate area = {A_face*1e6:.4f} mm^2")
 print(f"Face plate diameter = {d_face*1000:.4f} mm")
+print("\n===== PHASE 3 : LOX SWIRL INJECTOR SIZING =====")
+
+print(f"Injector elements = {N_elements}")
+print(f"Tangential inlets per element = {n_inlets}")
+
+print(f"LOX mass flow per element = {mdot_LOX_el:.4f} kg/s")
+
+print(f"Spray half-angle = {alpha_half_deg:.1f} deg")
+print(f"Spray full cone angle = {alpha_full_deg:.1f} deg")
+
+print(f"A_bazarov = {A_bazarov:.4f} [-]")
+print(f"phi = {phi:.4f} [-]")
+print(f"mu_swirl = {mu_swirl:.4f} [-]")
+
+print(f"LOX nozzle radius Rn = {Rn_LOX*1000:.3f} mm")
+print(f"LOX nozzle diameter Dn = {Dn_LOX*1000:.3f} mm")
+
+print(f"Swirl arm Rin = {Rin*1000:.3f} mm")
+
+print(f"Tangential inlet radius rin = {rin*1000:.3f} mm")
+print(f"Tangential inlet diameter din = {din*1000:.3f} mm")
+
+print(f"Tangential passage length l_in = {l_in*1000:.3f} mm")
+
+print(f"Nozzle length l_n = {l_n*1000:.3f} mm")
+
+print(f"Swirl chamber radius R_s = {R_s*1000:.3f} mm")
+print(f"Swirl chamber diameter D_s = {D_s*1000:.3f} mm")
+print(f"Swirl chamber length l_s = {l_s*1000:.3f} mm")
